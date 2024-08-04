@@ -1,11 +1,11 @@
 /*
- * Copyright (c) 2024 Your Name
+ * Copyright (c) 2024 Ayla Lin and other students
  * SPDX-License-Identifier: Apache-2.0
  */
 
 `default_nettype none
 
-module tt_um_example (
+module tt_um_led_matrix_ayla_lin(
     input  wire [7:0] ui_in,    // Dedicated inputs
     output wire [7:0] uo_out,   // Dedicated outputs
     input  wire [7:0] uio_in,   // IOs: Input path
@@ -16,12 +16,25 @@ module tt_um_example (
     input  wire       rst_n     // reset_n - low to reset
 );
 
-  // All output pins must be assigned. If not used, assign to 0.
-  assign uo_out  = ui_in + uio_in;  // Example: ou_out is the sum of ui_in and uio_in
-  assign uio_out = 0;
-  assign uio_oe  = 0;
+wire reset;
+wire enable_n;
+assign reset = !rst_n;
+assign enable_n = !ena;
 
-  // List all unused inputs to prevent warnings
-  wire _unused = &{ena, clk, rst_n, 1'b0};
+TOP top_inst(
+    .sysclk(clk),
+    .reset(reset),
+    .enable_n(enable_n),
+    .spi_clk(uo_out[0]),
+    .spi_cs_n(uo_out[1]),
+    .spi_mosi(uo_out[2])
+);
 
+// All output pins must be assigned. If not used, assign to 0.
+assign uo_out[7:3]  = 0;
+assign uio_out = 0;
+assign uio_oe  = 0;
+
+// List all unused inputs to prevent warnings
+wire _unused = &{ui_in, uio_in, 1'b0};
 endmodule
