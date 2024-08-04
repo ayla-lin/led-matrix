@@ -9,12 +9,16 @@ You can also include images in this folder and reference them in the markdown. E
 
 ## How it works
 
-Explain how your project works
+This project contains 3 components:
+* SPI for sending instructions and bitmaps to MAX7219/7221.
+* ROM for storing bitmaps to display.
+* Controller for instructing SPI and ROM.
 
 ## How to test
 
-Explain how to use your project
+Run test.py.
 
 ## External hardware
 
-List external hardware used in your project (e.g. PMOD, LED display, etc), if any
+* 32x8 LED Matrix
+* MAX7219/7221
