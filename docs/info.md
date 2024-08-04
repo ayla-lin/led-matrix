@@ -20,5 +20,6 @@ Run test.py.
 
 ## External hardware
 
-* 32x8 LED Matrix
-* MAX7219/7221
+* 32x8 LED Matrix.
+* MAX7219/7221.
+* 5V battery.
