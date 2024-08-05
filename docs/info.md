@@ -16,7 +16,7 @@ This project contains 3 components:
 
 ## How to test
 
-Run test.py.
+Test using FPGA and a breadboard
 
 ## External hardware
 
