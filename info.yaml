@@ -1,7 +1,7 @@
 # Tiny Tapeout project information
 project:
   title:        "32x8 LED Matrix Animation"      # Project title
-  author:       "Ayla Lin, Pavit Thakur, Lauren Lo"      # Your name
+  author:       "Ayla Lin, Pavit Thakur, Lauren Low"      # Your name
   discord:      ""      # Your discord username, for communication and automatically assigning you a Tapeout role (optional)
   description:  "An animation using a 32x8 matrix, switching between a beaver logo and the letters 'BWSI'"      # One line description of what your project does
   language:     "Verilog" # other examples include SystemVerilog, Amaranth, VHDL, etc
