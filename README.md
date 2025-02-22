@@ -33,9 +33,9 @@ The functionality of the Verilog code was validated using a [Zynq-7000 ARM/FPGA 
 
 ## Microelectronics Design
 
-LED Matrices and Drivers: The animation display comprises four 8x8 LED matrices, each driven by a MAX7221 driver. The drivers are cascaded, connecting their LOAD and CLK signals in parallel, while the DIN of each subsequent driver is connected to the DOUT of the preceding one. This cascading arrangement enables control of multiple MAX7221 drivers, and thus multiple LED matrices, using only three output ports from the ASIC. Although the current implementation utilizes four LED matrices, the design is scalable to support additional matrices without increasing the number of ASIC output ports.
+**LED Matrices and Drivers**: The animation display comprises four 8x8 LED matrices, each driven by a MAX7221 driver. The drivers are cascaded, connecting their LOAD and CLK signals in parallel, while the DIN of each subsequent driver is connected to the DOUT of the preceding one. This cascading arrangement enables control of multiple MAX7221 drivers, and thus multiple LED matrices, using only three output ports from the ASIC. Although the current implementation utilizes four LED matrices, the design is scalable to support additional matrices without increasing the number of ASIC output ports.
 
-Voltage Level Converter: The Tiny Tapeout ASIC and Zynq-7000 FPGA output 3.3V, while the MAX7221 drivers require an input voltage between 4.0V and 5.5V. A TXS0108E Level Shifter is employed to convert the ASIC/FPGA output from 3.3V to 5.0V. The TXS0108E provides eight channels, but only three (CLK, LOAD, and DIN) are utilized in this implementation.
+**Voltage Level Converter**: The Tiny Tapeout ASIC and Zynq-7000 FPGA output 3.3V, while the MAX7221 drivers require an input voltage between 4.0V and 5.5V. A TXS0108E Level Shifter is employed to convert the ASIC/FPGA output from 3.3V to 5.0V. The TXS0108E provides eight channels, but only three (CLK, LOAD, and DIN) are utilized in this implementation.
 
 ![Microelectronics System](docs/system.gif)
 
