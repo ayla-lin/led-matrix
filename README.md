@@ -1,41 +1,47 @@
 ![](../../workflows/gds/badge.svg) ![](../../workflows/docs/badge.svg) ![](../../workflows/test/badge.svg) ![](../../workflows/fpga/badge.svg)
 
-# Tiny Tapeout Verilog Project Template
+# 32x8 LED Matrix Animation
 
-- [Read the documentation for project](docs/info.md)
+## Introduction
 
-## What is Tiny Tapeout?
+This report details the development of an ASIC-based system for rendering animations on a 32x8 LED matrix, undertaken as part of the 2024 [MIT Beaver Works Summer Institute (BWSI) Program](https://bwsi.mit.edu/). The core of this system is a custom-designed Application-Specific Integrated Circuit (ASIC) which utilizes the Serial Peripheral Interface (SPI) protocol to control the LED display. The Verilog code for the ASIC is available in the project repository.
 
-Tiny Tapeout is an educational project that aims to make it easier and cheaper than ever to get your digital and analog designs manufactured on a real chip.
+In addition to the ASIC, the project involved the design and implementation of supporting microelectronics, including four 8x8 LED matrices, MAX7221 LED drivers, and TXS0108E voltage level shifters.
 
-To learn more and get started, visit https://tinytapeout.com.
+The functionality of the Verilog code was validated using a [Zynq-7000 ARM/FPGA SoC Development Board](https://digilent.com/shop/zybo-z7-zynq-7000-arm-fpga-soc-development-board/). The microelectronics design was prototyped and tested via breadboarding. A demonstration of the system's output is provided in the video linked below. The Verilog design is currently undergoing ASIC hardening through [Tiny Tapeout 9](https://tinytapeout.com/runs/tt09/tt_um_led_matrix_ayla_lin), with an anticipated completion date in summer 2025.
 
-## Set up your Verilog project
+![ASIC-Based Animation](docs/animation.gif)
 
-1. Add your Verilog files to the `src` folder.
-2. Edit the [info.yaml](info.yaml) and update information about your project, paying special attention to the `source_files` and `top_module` properties. If you are upgrading an existing Tiny Tapeout project, check out our [online info.yaml migration tool](https://tinytapeout.github.io/tt-yaml-upgrade-tool/).
-3. Edit [docs/info.md](docs/info.md) and add a description of your project.
-4. Adapt the testbench to your design. See [test/README.md](test/README.md) for more information.
+## ASIC Design
 
-The GitHub action will automatically build the ASIC files using [OpenLane](https://www.zerotoasiccourse.com/terminology/openlane/).
+[The ASIC](https://gds-viewer.tinytapeout.com/?model=https%3A%2F%2Fshuttle-assets.tinytapeout.com%2Ftt09%2Ftt_um_led_matrix_ayla_lin%2Ftt_um_led_matrix_ayla_lin.gds.gltf) comprises four key components, all implemented in Verilog:
+- **ROM**: Stores the following:
+  - SPI commands for initializing the MAX7221 drivers.
+  - Two 32x8 1-bit masks representing animation frames, along with their corresponding column offsets for the LED matrix.
+- **SPI**: Implements the Master Out Slave In (MOSI) mode, which is required for driving the MAX7221. The SPI module operates in three states:
+  - IDLE: Awaiting instructions from the CONTROLLER.
+  - SEND: Transmitting commands and data to the MAX7221 drivers.
+  - PAUSE: Ceasing transmission to the MAX7221, which continues to display the last received bitmask.
+- **CONTROLLER**: Directs the SPI module to initialize the MAX7221 drivers and periodically retrieves bitmaps from the ROM to send to the drivers. The controller has four states:
+  - IDLE: Waiting for the SPI module to become ready.
+  - SETUP: Initializing the MAX7221 drivers. This involves setting the ROM address to the initialization commands and instructing the SPI module to transmit these commands.
+  - DISPLAY: Sending a 32x8 pixel bitmap to the MAX7221 drivers, achieved by setting the ROM address to the corresponding bitmask and instructing the SPI module.
+  - PAUSE: Pausing the SPI module for 2^21 clock cycles (approximately 1 second) to maintain the display of the current bitmask for that duration.
+- **Clock Downsampler (RTL_ADD and RTL_REG_ASYNC)**: To reconcile the 33 MHz clock frequency of the Tiny Tapeout ASIC and Zynq-7000 FPGA development boards with the 10 MHz maximum supported frequency of the MAX7221 drivers, a four-bit counter is used to reduce the clock frequency to 33/16 MHz.
 
-## Enable GitHub actions to build the results page
+![Schematic](docs/schematic.png)
 
-- [Enabling GitHub Pages](https://tinytapeout.com/faq/#my-github-action-is-failing-on-the-pages-part)
+## Microelectronics Design
 
-## Resources
+LED Matrices and Drivers: The animation display comprises four 8x8 LED matrices, each driven by a MAX7221 driver. The drivers are cascaded, connecting their LOAD and CLK signals in parallel, while the DIN of each subsequent driver is connected to the DOUT of the preceding one. This cascading arrangement enables control of multiple MAX7221 drivers, and thus multiple LED matrices, using only three output ports from the ASIC. Although the current implementation utilizes four LED matrices, the design is scalable to support additional matrices without increasing the number of ASIC output ports.
 
-- [FAQ](https://tinytapeout.com/faq/)
-- [Digital design lessons](https://tinytapeout.com/digital_design/)
-- [Learn how semiconductors work](https://tinytapeout.com/siliwiz/)
-- [Join the community](https://tinytapeout.com/discord)
-- [Build your design locally](https://www.tinytapeout.com/guides/local-hardening/)
+Voltage Level Converter: The Tiny Tapeout ASIC and Zynq-7000 FPGA output 3.3V, while the MAX7221 drivers require an input voltage between 4.0V and 5.5V. A TXS0108E Level Shifter is employed to convert the ASIC/FPGA output from 3.3V to 5.0V. The TXS0108E provides eight channels, but only three (CLK, LOAD, and DIN) are utilized in this implementation.
 
-## What next?
+![Microelectronics System](docs/system.gif)
 
-- [Submit your design to the next shuttle](https://app.tinytapeout.com/).
-- Edit [this README](README.md) and explain your design, how it works, and how to test it.
-- Share your project on your social network of choice:
-  - LinkedIn [#tinytapeout](https://www.linkedin.com/search/results/content/?keywords=%23tinytapeout) [@TinyTapeout](https://www.linkedin.com/company/100708654/)
-  - Mastodon [#tinytapeout](https://chaos.social/tags/tinytapeout) [@matthewvenn](https://chaos.social/@matthewvenn)
-  - X (formerly Twitter) [#tinytapeout](https://twitter.com/hashtag/tinytapeout) [@tinytapeout](https://twitter.com/tinytapeout)
+## Design Process
+
+This project was undertaken to apply and expand upon knowledge of ASIC design and microelectronics acquired during the BWSI program and to develop a functional and engaging system. The initial concept involved direct control of the LED matrices by the ASIC, outputting pixel row/column coordinates. This approach, while simpler in terms of avoiding the SPI protocol and MAX7221 drivers, would have necessitated a significantly larger number of output ports. For instance, an 8x8 bitmap would require 16 ports, and larger bitmaps would require more.
+
+To enable more complex and visually interesting animations, the SPI protocol was adopted. The current 32x8 pixel implementation was selected as a compromise between visual detail and cost constraints associated with the Tiny Tapeout process, which scales with chip area. The design is readily adaptable to accommodate larger animations with minor modifications.
+
